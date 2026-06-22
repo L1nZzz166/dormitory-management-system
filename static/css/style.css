@@ -292,3 +292,64 @@ body {
 .back-link i {
     margin-right: 5px;
 }
+
+/* 登录页面 */
+.login-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+.login-card {
+    background: white;
+    border-radius: 15px;
+    padding: 45px 35px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h2 {
+    font-weight: bold;
+    color: #1a73e8;
+    margin-top: 10px;
+}
+
+.login-header p {
+    margin-top: 8px;
+}
+
+.login-card .form-group label {
+    font-weight: bold;
+    color: #333;
+}
+
+.login-card .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    font-weight: bold;
+    letter-spacing: 4px;
+    transition: all 0.3s;
+}
+
+.login-card .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* 导航栏用户名信息 */
+.navbar .navbar-text {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+}

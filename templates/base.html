@@ -48,6 +48,17 @@
                             <i class="bi bi-tools"></i> 报修管理
                         </a>
                     </li>
+                    <li class="nav-item ml-3">
+                        <span class="navbar-text text-white-50">
+                            <i class="bi bi-person-check"></i> {{ user.username }}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home:logout' %}"
+                           onclick="return confirm('确定要退出登录吗？')">
+                            <i class="bi bi-box-arrow-right"></i> 退出
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>

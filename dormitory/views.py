@@ -1,15 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import Dormitory
 from .forms import DormitoryForm
 from student.models import Student
 
 
+@login_required
 def dormitory_list(request):
     """宿舍列表页面"""
     dormitories = Dormitory.objects.all()
     return render(request, 'dormitory/list.html', {'dormitories': dormitories})
 
 
+@login_required
 def dormitory_add(request):
     """添加宿舍"""
     if request.method == 'POST':
@@ -22,6 +25,7 @@ def dormitory_add(request):
     return render(request, 'dormitory/add.html', {'form': form})
 
 
+@login_required
 def dormitory_detail(request, pk):
     """宿舍详情 - 显示该宿舍入住的学生"""
     dormitory = get_object_or_404(Dormitory, pk=pk)
@@ -32,6 +36,7 @@ def dormitory_detail(request, pk):
     })
 
 
+@login_required
 def dormitory_delete(request, pk):
     """删除宿舍"""
     dormitory = get_object_or_404(Dormitory, pk=pk)
