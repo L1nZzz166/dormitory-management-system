@@ -2,6 +2,8 @@
 
 > 从零开始，手把手教你将网站部署到云端，让任何人都能通过网址访问！
 
+> 🔔 **部署脚本已支持 Ubuntu / Debian / CentOS / RHEL 全系列系统，自动适配。**
+
 ---
 
 ## 📖 教程目录
@@ -190,7 +192,17 @@ git clone https://github.com/L1nZzz166/dormitory-management-system.git
 apt-get update && apt-get install -y git
 ```
 
-### 4.2 进入项目并运行部署脚本
+### 4.2 先确认你的服务器系统（重要！）
+
+登录后先看一下你的系统是什么：
+
+```bash
+cat /etc/os-release | head -3
+```
+
+输出类似 `ID="ubuntu"` 或 `ID="centos"` — **不管是哪个，部署脚本都会自动适配**。
+
+### 4.3 运行部署脚本
 
 ```bash
 cd dormitory-management-system
