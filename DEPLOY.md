@@ -1,427 +1,361 @@
-# 🚀 学生宿舍管理系统 — 腾讯云部署完整教程
+# 🏠 学生宿舍管理系统 — 腾讯云部署完整教程
 
-> 从零开始，手把手教你将网站部署到云端。
-> **不管你是 Ubuntu 还是 CentOS，部署脚本自动适配。**
-
----
-
-## 📖 目录
-
-1. [购买云服务器](#一购买腾讯云服务器)
-2. [连接服务器](#二连接你的服务器)
-3. [配置安全组（开放端口）](#三配置安全组开放端口)
-4. [一键部署（3条命令）](#四一键部署网站)
-5. [验证网站是否上线](#五验证网站是否上线)
-6. [日常维护](#六日常维护)
-7. [常见问题排查](#七常见问题排查)
+> 用 Python3.7 + Django2.2 + SQLite + Nginx 把你的网站发布到公网。  
+> **Ubuntu / CentOS / TencentOS 全兼容，脚本自动判断系统。**
 
 ---
 
-## 前置知识
+## 目录
 
-你需要准备好：
-- ✅ 本项目已上传至 GitHub：[L1nZzz166/dormitory-management-system](https://github.com/L1nZzz166/dormitory-management-system)
-- ✅ 一个腾讯云账号（没有的话需要先去 [cloud.tencent.com](https://cloud.tencent.com) 注册）
-- ✅ 一个域名（可选，有公网 IP 就够了）
-
-**不需要懂 Linux，每一条命令都会解释清楚，跟着做就行。**
+- [你需要准备什么](#你需要准备什么)
+- [第一步：购买服务器](#第一步购买服务器)
+- [第二步：登录服务器](#第二步登录服务器)
+- [第三步：开放 80 端口](#第三步开放-80-端口)
+- [第四步：一键部署](#第四步一键部署)
+- [第五步：验证上线](#第五步验证上线)
+- [第六步：日常维护](#第六步日常维护)
+- [故障排查](#故障排查)
 
 ---
 
-## 一、购买腾讯云服务器
+## 你需要准备什么
 
-### 1.1 选哪种服务器？
+| 东西 | 说明 |
+|------|------|
+| 腾讯云账号 | 去 [cloud.tencent.com](https://cloud.tencent.com) 注册，实名认证 |
+| 充十几块钱 | 服务器最低 ¥28/月，学生认证更便宜 |
+| 本教程 | 跟着做，不需要懂 Linux |
 
-腾讯云有两大类：
+**不需要准备：**
+- ❌ 不需要域名（有 IP 就够了）
+- ❌ 不需要会 Linux（每条命令都解释了）
+- ❌ 不需要安装任何工具（Windows 自带连接工具）
 
-| 类型 | 特点 | 推荐人群 |
-|------|------|----------|
-| **轻量应用服务器** | 便宜、界面简单、开箱即用 | 个人项目、学生首选 |
-| **云服务器 CVM** | 功能更多、可定制性强 | 企业、需要复杂配置 |
+---
 
-> 💡 学生认证后轻量服务器最低 **¥28/月**，做一个展示网站完全够用。
+## 第一步：购买服务器
+
+### 1.1 选哪种
+
+腾讯云有两种服务器：
+
+| 类型 | 价格 | 推荐 |
+|------|------|------|
+| **轻量应用服务器** | 便宜，界面简单 | ✅ 个人项目首选 |
+| 云服务器 CVM | 功能多，配置复杂 | 企业用户 |
 
 ### 1.2 购买步骤
 
-1. 打开 [腾讯云轻量服务器购买页](https://buy.cloud.tencent.com/lighthouse)
-2. 按下面选择：
+1. 打开 [腾讯云轻量服务器](https://buy.cloud.tencent.com/lighthouse)
+2. 配置：
 
-| 配置项 | 推荐选择 |
-|--------|----------|
-| 地域 | 离自己最近的（广州/上海/北京） |
-| 镜像 | **Ubuntu 22.04** 或 **CentOS 7.9** 都行 |
-| 套餐 | 2核2G（最低配就够） |
+| 选项 | 选什么 |
+|------|--------|
+| 地域 | 离自己近的（广州、上海、北京随便） |
+| 镜像 | **Ubuntu 22.04** 就行（CentOS 也支持，脚本自动处理） |
+| 套餐 | 最低配 2核2G 完全够用 |
 | 时长 | 先买 1 个月试试 |
 
-3. 点击「立即购买」并支付
+3. 点击购买 → 支付
 
-> ⚠️ 不管是 Ubuntu 还是 CentOS，部署脚本都能自动适配，不用纠结选哪个。
+### 1.3 买完后
 
-### 1.3 购买后必须记录的信息
-
-购买完成后，去控制台首页，你会看到你的服务器信息：
+腾讯云控制台首页会显示你的服务器信息：
 
 ```
-实例名称          状态      公网 IP        到期时间
-xxxxxxxx          运行中    1.2.3.4        2026-07-22
+实例名称         状态      公网 IP          到期时间
+xxxx-server      运行中    1.2.3.4          2026-07-22
 ```
 
-**✏️ 记下「公网 IP」和「密码」，后面每一步都要用到。**
+**把你看到的公网 IP 记下来，后面每一步都要用。**
+
+### 1.4 设置密码
+
+1. 控制台 → 点击你的服务器名字进入详情
+2. 在页面里找到「**设置密码**」或「**重置密码**」
+3. 设置一个你能记住的密码（8 位以上，包含大小写和数字）
 
 ---
 
-## 二、连接你的服务器
+## 第二步：登录服务器
 
-你现在需要从自己的电脑"远程登录"到云服务器。根据你用的操作系统选择对应方式：
+"登录服务器"就是从你自己的电脑远程连到这台云端机器。
 
----
+根据你用的系统，选一种方式：
 
-### 🪟 Windows 系统
+### 🪟 Windows
 
 #### 方式一：PowerShell（推荐，Windows 自带）
 
-1. 按键盘 `Win + R`，输入 `powershell`，回车
-2. 在蓝色窗口中输入：
+1. 按键盘 `Win + R`
+2. 输入 `powershell`
+3. 回车 — 会弹出一个蓝色窗口
+4. 在蓝色窗口里输入（把 `1.2.3.4` 换成你的公网 IP）：
 
-```bash
-ssh root@你的公网IP
 ```
-
-例如：
-```bash
 ssh root@1.2.3.4
 ```
 
-3. 第一次连接会问：
+5. 第一次连接会提示：
+
 ```
+The authenticity of host '1.2.3.4' can't be established.
 Are you sure you want to continue connecting (yes/no)?
 ```
-输入 `yes` 回车。
 
-4. 输入密码（**注意：输入时屏幕不会有任何显示，这是正常的安全设计**），输完回车。
+6. 输入 `yes` 回车
 
-#### 方式二：腾讯云网页终端（最简单，啥也不用装）
+7. 输入你设置的密码，回车
 
-1. 打开腾讯云控制台 → 轻量应用服务器
-2. 点击你的服务器名称
-3. 点击右上角「**登录**」按钮
-4. 选择「**标准登录**」→ 输入密码即可
+> 输密码时屏幕上**什么都不会显示**，连 `***` 也没有。这是安全设计。输完直接回车就行。
 
-> 💡 网页终端不需要安装任何软件，但复制粘贴不太方便。长远使用建议 PowerShell。
-
----
-
-### 🍎 Mac 系统
-
-1. 打开「**终端**」应用（在启动台搜索 Terminal）
-2. 输入：
-
-```bash
-ssh root@你的公网IP
-```
-
-3. 第一次连接输入 `yes`，然后输入密码
-
----
-
-### 🐧 Linux 系统
-
-打开终端，步骤同上。
-
----
-
-### 登录成功的样子
+8. 看到类似以下的文字就说明登录成功了：
 
 ```
-Welcome to Ubuntu 22.04 LTS (GNU/Linux 5.15.0-xxx)
-  System information as of ...
-
-root@VM-xxxxx:~#
+Welcome to Ubuntu 22.04 LTS
+root@VM-xxxx:~#
 ```
 
-看到 `root@...:~#` 就说明登录成功了！后面所有命令都在这个黑窗口里输入。
+#### 方式二：腾讯云网页终端（如果 PowerShell 不行）
+
+1. 控制台 → 轻量应用服务器 → 点击你的服务器
+2. 页面右上角「**登录**」按钮
+3. 选择「标准登录」→ 输入密码 → 确定
+4. 浏览器里会出现一个黑色终端窗口，那就是你的服务器
+
+> 网页终端不需要安装任何东西，但复制粘贴不太方便。推荐用 PowerShell。
+
+### 🍎 Mac
+
+1. 打开「**终端**」App（在启动台搜索 Terminal）
+2. 输入 `ssh root@你的公网IP`
+3. 第一次输入 `yes`
+4. 输入密码
+5. 看到 `root@...` 字样就登录成功了
 
 ---
 
-## 三、配置安全组（开放端口）
+## 第三步：开放 80 端口
 
-> ⚠️ **这一步非常重要！不开放端口，网站从外网根本打不开。**
+> ⚠️ **非常重要！不做这一步，网站外网绝对打不开。**
 
-云服务器的端口默认是关闭的，你需要手动放行 HTTP 的 **80 端口**。
+云服务器的端口默认全关着，必须手动打开。
 
 ### 轻量应用服务器
 
-1. 控制台 → 轻量应用服务器 → 点击你的实例
-2. 点击顶部的「**防火墙**」标签页
+1. 控制台 → 轻量应用服务器 → 点击你的服务器
+2. 顶部找到「**防火墙**」标签，点击
 3. 点击「**添加规则**」
-4. 填写：
+4. 填：
 
-| 应用类型 | 端口 | 策略 |
-|----------|------|------|
-| HTTP(80) | 80 | 允许 |
+| 字段 | 值 |
+|------|-----|
+| 应用类型 | HTTP (80) |
+| 协议 | TCP |
+| 端口 | 80 |
+| 策略 | 允许 |
 
-5. 确认列表中出现了 `TCP:80` 这一条
+5. 确认列表里出现了 `TCP:80` 这一行
 
 ### 云服务器 CVM
 
 1. 控制台 → 云服务器 → 点击你的实例
-2. 点击「**安全组**」标签页
-3. 点击绑定的安全组名称，进入详情
-4. 「**入站规则**」→「**添加规则**」：
+2. 找到「**安全组**」标签
+3. 点击绑定的安全组名称（蓝色可点击）
+4. 点击「**入站规则**」→「**添加规则**」：
 
-| 类型 | 来源 | 协议端口 |
-|------|------|----------|
-| HTTP(80) | 0.0.0.0/0 | TCP:80 |
-
----
-
-## 四、一键部署网站
-
-现在回到你连接服务器那个黑窗口，按顺序执行以下命令。
+| 字段 | 值 |
+|------|-----|
+| 类型 | HTTP(80) |
+| 来源 | 0.0.0.0/0 |
+| 协议端口 | TCP:80 |
+| 策略 | 允许 |
 
 ---
 
-### 第 1 步：下载项目
+## 第四步：一键部署
+
+回到第二步登录服务器时那个**黑色命令行窗口**。
+
+### 4.1 下载部署脚本
 
 ```bash
 git clone https://github.com/L1nZzz166/dormitory-management-system.git
 ```
 
-含义：从 GitHub 把项目代码下载到服务器。
+> 含义：从 GitHub 把项目代码下载到服务器。
 
-> ❓ **如果提示 `git: command not found`**，说明服务器还没装 git。
+**如果报 `git: command not found`：**
 
-根据你的系统执行对应的安装命令：
-
-**如果你是 Ubuntu/Debian：**
+Ubuntu/Debian 系统：
 ```bash
 apt-get update && apt-get install -y git
 ```
 
-**如果你是 CentOS/TencentOS：**
+CentOS/TencentOS 系统：
 ```bash
 yum install -y git
 ```
 
-安装完 Git 后，重新执行 `git clone ...` 这条命令。
+装完 Git 后重新执行上面的 `git clone` 命令。
 
----
+**如果报 `Could not resolve host: github.com`：** 说明服务器连不上 GitHub，跳转到本文最后的「[服务器连不上 GitHub](#服务器连不上-github)」部分。
 
-### 第 2 步：运行部署脚本
+### 4.2 运行部署
 
 ```bash
 cd dormitory-management-system
 bash deploy.sh --ip 你的公网IP
 ```
 
-例如你的公网 IP 是 `1.2.3.4`：
+示例（假设你的公网 IP 是 `1.2.3.4`）：
 ```bash
 bash deploy.sh --ip 1.2.3.4
 ```
 
-> ❓ **如果你有域名**，把 `--ip` 换成 `--domain`：
-> ```bash
-> bash deploy.sh --domain www.你的域名.com
-> ```
+> 如果你有域名，可以写成 `bash deploy.sh --domain www.xxx.com`
 
----
+### 4.3 等待完成
 
-### 第 3 步：等待完成
-
-脚本会自动执行以下所有操作，你只需要看着：
+脚本自动执行，整个过程 **5~10 分钟**：
 
 ```
 [INFO] 正在检测操作系统...
-[INFO] 检测到 Debian/Ubuntu 系统，使用 apt-get 安装
-[INFO] ========================================
-[INFO]   学生宿舍管理系统 - 开始部署
-[INFO]   系统: ubuntu | 服务器: 1.2.3.4
-[INFO] ========================================
-[INFO] [1/6] 更新并安装系统依赖...        ← 自动识别 apt 还是 yum
-[INFO] [2/6] 克隆项目代码...
-[INFO] [3/6] 创建 Python 虚拟环境并安装依赖...
-[INFO] [4/6] 初始化数据库...
-[INFO] [5/6] 配置 Nginx 反向代理...
-[INFO] [6/6] 创建 systemd 服务...
-[INFO]
-[INFO] ========================================
-[INFO]   ✅ 部署完成！
-[INFO] ========================================
-[INFO]   访问地址: http://1.2.3.4
-[INFO]   系统类型: ubuntu
+[INFO] 操作系统: ubuntu 22.04
+[INFO] [1/7] 安装 Python 3.7...        ← 自动装 Python3.7 环境
+[INFO] [2/7] 安装系统依赖...
+[INFO] [3/7] 克隆项目代码...
+[INFO] [4/7] 创建 Python 虚拟环境...
+[INFO] [5/7] 初始化数据库...
+      创建了 7 间宿舍
+      创建了 8 名学生
+      创建了 5 条报修记录
+[INFO] [6/7] 配置 Nginx...
+[INFO] [7/7] 创建 systemd 服务...
+
+========================================
+  ✅ 部署完成！
+========================================
+  网站: http://1.2.3.4
+  Python: Python 3.7.17
+  Django: 2.2.0
+  账号: 24510206030229
+  密码: 123456
+
+  管理命令:
+    sudo systemctl status dormitory
+    sudo systemctl restart dormitory
+    sudo journalctl -u dormitory -f
+========================================
+✅ dormitory 服务运行中
+✅ nginx 服务运行中
 ```
 
-看到 **`✅ 部署完成！`** 就说明一切就绪。整个过程大约 3-5 分钟。
+看到「**✅ 部署完成！**」和两个「**运行中**」就说明一切 OK。
 
 ---
 
-### 脚本自动做了什么？（不需要手操，看一眼就行）
+## 第五步：验证上线
 
-| 步骤 | 说明 |
-|------|------|
-| 检测系统 | 自动识别 Ubuntu/CentOS/TencentOS，选对包管理器 |
-| 安装依赖 | Python3、pip、Nginx、Git |
-| 克隆代码 | 从 GitHub 拉取最新代码 |
-| Python 环境 | 创建虚拟环境，安装 Django2.2 + Gunicorn |
-| 数据库 | 建表 + 登录账号 + 演示数据 |
-| Nginx | 配置反向代理，接管 80 端口 |
-| systemd | 设置开机自启，挂了自动重启 |
+### 5.1 打开网站
 
----
-
-### 部署中可能遇到的问题
-
-| 报错 | 解决方法 |
-|------|----------|
-| `Permission denied` | 命令前加 `sudo`：`sudo bash deploy.sh --ip 1.2.3.4` |
-| `Could not connect to github.com` | 服务器暂时连不上 GitHub，等几分钟重试；或者看 [7.6 手动上传方案](#76-github-连不上怎么办手动上传) |
-| `port 80 is already in use` | 80 端口被占用：CentOS 停 `sudo systemctl stop httpd`，全部系统通用 `sudo systemctl stop apache2`，再重试 |
-
----
-
-## 五、验证网站是否上线
-
-### 5.1 打开浏览器
-
-地址栏输入：
+浏览器地址栏输入：
 
 ```
 http://你的公网IP
 ```
 
-比如 `http://1.2.3.4`
+### 5.2 确认以下功能都能正常使用
 
-### 5.2 你应该看到
+| 步骤 | 应该看到什么 |
+|------|-------------|
+| 打开网站 | 紫色渐变背景的登录页 |
+| 登录 | 账号 `24510206030229` 密码 `123456` |
+| 登录后 | 首页，顶部蓝色导航栏，中间三个功能卡片 |
+| 学生管理 | 点进去有 8 个学生数据 |
+| 宿舍管理 | 点进去有 7 间宿舍数据 |
+| 报修管理 | 点进去有 5 条报修记录 |
+| 页面底部 | 显示「林志杰」「学号：29」 |
+| 退出 | 右上角退出按钮，退回到登录页 |
 
-| 步骤 | 预期效果 |
-|------|----------|
-| 打开网址 | 紫色渐变的**登录页面** |
-| 输入账号 | `24510206030229` |
-| 输入密码 | `123456` |
-| 登录成功 | 进入**学生宿舍管理系统首页** |
+### 5.3 如果打不开？
 
-### 5.3 完整检查清单
-
-- [ ] 登录页面能正常打开（不是连接超时）
-- [ ] 输入账号密码能成功登录
-- [ ] 首页三个功能卡片正常显示
-- [ ] 学生管理页面能添加、编辑、删除学生
-- [ ] 宿舍管理页面能查看入住情况
-- [ ] 报修管理页面能提交和跟踪报修
-- [ ] 页面样式美观（有颜色、有卡片、有图标——不是纯白文字堆砌）
-- [ ] 页面底部显示「姓名：林志杰」「学号：29」
-- [ ] 导航栏「退出」按钮能退出登录
-
-### 5.4 有问题？
-
-→ 直接翻到 [第七章常见问题排查](#七常见问题排查)
+跳到最后面的「[故障排查](#故障排查)」。
 
 ---
 
-## 六、日常维护
+## 第六步：日常维护
 
-### 代码更新后同步到服务器
+### 更新代码
 
-在你自己的电脑上改完代码、push 到 GitHub 后：
+你在自己的电脑上改了代码，push 到 GitHub 后，想同步到服务器：
 
 ```bash
-# SSH 登录服务器
+# SSH 登录
 ssh root@你的公网IP
 
-# 拉取最新代码并重启
+# 拉代码 + 重启
 cd /opt/dormitory_management
-sudo git pull origin master
+git pull origin master
 sudo systemctl restart dormitory
 ```
 
-### 常用管理命令速查
+### 常用命令
 
 ```bash
-# 查看服务是否运行（看到 active (running) 就正常）
+# 看看服务是不是在跑
 sudo systemctl status dormitory
+# 按 q 退出
 
 # 重启网站
 sudo systemctl restart dormitory
 
-# 查看最近 50 条日志（排查错误时用）
+# 查看运行日志
 sudo journalctl -u dormitory -n 50
 
-# 实时查看日志（看谁在访问你的网站）
+# 查看谁在访问
 sudo tail -f /var/log/nginx/dormitory_access.log
 ```
 
 ---
 
-## 七、常见问题排查
+## 故障排查
 
-### 7.1 浏览器访问显示「无法访问此网站」/「连接超时」
+### 网站打不开 / 连接超时
 
-**可能原因：** 端口没开放、Nginx 没跑起来、或系统防火墙拦了。
+1. **检查安全组**
 
-**逐项排查：**
+   回腾讯云控制台 → 防火墙/安全组 → 确认 TCP:80 存在 → 没有就按第三步添加。
 
-```bash
-# ① Nginx 有没有在跑？
-sudo systemctl status nginx
-# 看到 inactive (dead) 就执行：
-sudo systemctl start nginx
+2. **检查 Nginx**
 
-# ② 检查腾讯云安全组/防火墙
-# 登录腾讯云网页控制台 → 你的服务器 → 防火墙/安全组
-# 确认规则列表里有 TCP:80 → 没有就按第三章添加
+   ```bash
+   sudo systemctl status nginx
+   # 如果没跑：
+   sudo systemctl start nginx
+   ```
 
-# ③ CentOS 系统额外检查系统防火墙
-sudo firewall-cmd --list-ports
-# 如果 80 端口没在列表里：
-sudo firewall-cmd --add-port=80/tcp --permanent
-sudo firewall-cmd --reload
-```
+3. **CentOS 额外检查系统防火墙**
 
----
+   ```bash
+   sudo firewall-cmd --list-ports
+   # 如果没有 80/tcp：
+   sudo firewall-cmd --add-port=80/tcp --permanent
+   sudo firewall-cmd --reload
+   ```
 
-### 7.2 访问后显示「502 Bad Gateway」
+### 打开后显示 502 Bad Gateway
 
-**原因：** Nginx 在跑，但 Gunicorn（网站的 Python 进程）挂了。
-
-**解决：**
+Nginx 在运行，但是网站的后台进程挂了：
 
 ```bash
 sudo systemctl restart dormitory
-# 等 3 秒，然后检查状态：
 sleep 3
 sudo systemctl status dormitory
-# 确认显示 active (running)
+# 应该显示 active (running)
 ```
 
-如果反复 502，查看 Gunicorn 日志找具体原因：
-
-```bash
-sudo journalctl -u dormitory --since "5 minutes ago"
-```
-
----
-
-### 7.3 CentOS 系统 Nginx 自检不通过
-
-CentOS 上 Nginx 配置检测可能提示目录不存在：
-
-```bash
-# 创建日志目录
-sudo mkdir -p /var/log/nginx
-sudo touch /var/log/nginx/dormitory_access.log /var/log/nginx/dormitory_error.log
-
-# 再测一次
-sudo nginx -t
-sudo systemctl start nginx
-```
-
----
-
-### 7.4 页面能打开但样式全乱了（纯白背景没颜色）
-
-**原因：** 静态文件（CSS）没正确加载。
-
-**解决：**
+### 打开后样式错乱、只有白底黑字
 
 ```bash
 cd /opt/dormitory_management
@@ -430,85 +364,75 @@ python manage.py collectstatic --noinput
 sudo systemctl restart nginx
 ```
 
-然后**强制刷新浏览器**：按 `Ctrl + F5`（Windows）/ `Cmd + Shift + R`（Mac）。
+然后浏览器按 `Ctrl + F5` 强刷。
 
----
-
-### 7.5 服务器重启后网站打不开
-
-确认服务设置了开机自启：
-
-```bash
-sudo systemctl is-enabled dormitory    # 应输出 enabled
-sudo systemctl is-enabled nginx        # 应输出 enabled
-```
-
-如果输出 `disabled`，执行：
+### 服务器重启后网站打不开
 
 ```bash
 sudo systemctl enable dormitory
 sudo systemctl enable nginx
 ```
 
----
+### 部署到一半报错 `apt-get: command not found`
 
-### 7.6 GitHub 连不上怎么办？（手动上传）
+说明你的系统不是 Ubuntu（可能是 CentOS 或 TencentOS）。
 
-如果服务器怎么也连不上 GitHub，可以**从你电脑直接把项目传到服务器**：
-
-#### 在你自己的电脑上（Windows PowerShell）
-
-**① 打包项目：**
+**更新后的脚本已自动处理。** 重新 clone 最新代码再跑一次：
 
 ```bash
-cd E:/项目/dormitory_management
-tar -czf dormitory.tar.gz --exclude=venv --exclude=db.sqlite3 --exclude=__pycache__ .
+rm -rf dormitory-management-system
+git clone https://github.com/L1nZzz166/dormitory-management-system.git
+cd dormitory-management-system
+bash deploy.sh --ip 你的公网IP
 ```
 
-**② 上传到服务器：**
+### 部署时 Django 报错 `ModuleNotFoundError: No module named 'distutils'`
+
+说明你的系统自带的 Python 太新（3.10+），Django 2.2 不支持。
+
+**更新后的脚本已自动处理。** 脚本现在会自动检测 Python 版本，如果太新就自动安装 Python 3.7。重新 clone 最新代码再跑一次。
+
+### 服务器连不上 GitHub
+
+你电脑能上 GitHub 但是服务器不行，就**从你电脑把文件传上去**：
+
+#### 在你自己的 Windows 电脑上
+
+打开 PowerShell：
 
 ```bash
+# 第一步：打包项目
+cd E:/项目/dormitory_management
+tar -czf dormitory.tar.gz --exclude=venv --exclude=db.sqlite3 --exclude=__pycache__ .
+
+# 第二步：上传到服务器（把 IP 换成你自己的）
 scp E:/项目/dormitory_management/dormitory.tar.gz root@你的公网IP:/opt/
 ```
 
-#### 然后 SSH 回服务器
+#### 然后回到服务器
 
 ```bash
-ssh root@你的公网IP
+# 解压
 cd /opt
 mkdir -p dormitory_management
-tar -xzf dormitory.tar.gz -C dormitory_management
+tar -xzf dormitory.tar.gz -C dormitory_management/
 cd dormitory_management
-python3 -m venv venv
-source venv/bin/activate
-pip install django==2.2.0 gunicorn -q
-python manage.py migrate
-python create_user.py
-python seed_data.py
-```
 
-然后重新运行部署脚本（会自动跳过已存在的代码，只配置 Nginx 和服务）：
-
-```bash
+# 然后重新运行部署脚本（它检测到代码已经有了，会跳过 clone 这一步）
 bash deploy.sh --ip 你的公网IP
 ```
 
 ---
 
-### 7.7 CentOS 提示「sudo: command not found」
+## 项目信息
 
-你当前就是 root 用户，去掉命令前面的 `sudo` 即可。
-
-比如 `sudo systemctl start nginx` 改成 `systemctl start nginx`。
-
----
-
-## 📞 还需要帮助？
-
-- GitHub 仓库：[L1nZzz166/dormitory-management-system](https://github.com/L1nZzz166/dormitory-management-system)
-- 有问题可以到仓库提交 Issue
+| 项目 | 链接 |
+|------|------|
+| GitHub 仓库 | https://github.com/L1nZzz166/dormitory-management-system |
+| 作者 | 林志杰 |
+| 学号 | 29 |
+| 技术栈 | Python 3.7 + Django 2.2 + Bootstrap 4 + SQLite |
 
 ---
 
-> 🎉 完成以上所有步骤后，你的学生宿舍管理系统就成功上线了！
-> 在任何一台联网的电脑上输入 `http://你的公网IP` 都能访问到你的网站。
+> 🎉 完成全部步骤后，任何人都可以通过 `http://你的IP` 访问你的学生宿舍管理系统。
