@@ -276,6 +276,16 @@ body {
     }
 }
 
+/* 子应用导航工具栏 */
+.sub-app-toolbar {
+    padding: 10px 0;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.sub-app-toolbar .btn {
+    font-size: 0.9rem;
+}
+
 /* 返回按钮 */
 .back-link {
     color: #666;
