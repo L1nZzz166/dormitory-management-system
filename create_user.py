@@ -19,5 +19,17 @@ else:
     User.objects.create_user(username=username, password=password)
     print(f'用户 {username} 创建成功！')
 
+# 创建游客账号
+guest_username = 'guest'
+guest_password = 'guest'
+if User.objects.filter(username=guest_username).exists():
+    user = User.objects.get(username=guest_username)
+    user.set_password(guest_password)
+    user.save()
+    print(f'游客用户 {guest_username} 已存在，密码已更新。')
+else:
+    User.objects.create_user(username=guest_username, password=guest_password)
+    print(f'游客用户 {guest_username} 创建成功！')
+
 print(f'账号: {username}')
 print(f'密码: {password}')

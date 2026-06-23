@@ -25,6 +25,18 @@ def user_logout(request):
     return redirect('home:login')
 
 
+def guest_login(request):
+    """游客一键登录 - 仅查看权限"""
+    from django.contrib.auth.models import User
+    try:
+        guest_user = User.objects.get(username='guest')
+    except User.DoesNotExist:
+        from django.contrib import messages
+        return redirect('home:login')
+    login(request, guest_user)
+    return redirect('home:index')
+
+
 @login_required
 def index(request):
     """首页 - 学生宿舍管理系统主页"""

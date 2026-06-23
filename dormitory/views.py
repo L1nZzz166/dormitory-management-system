@@ -1,8 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Dormitory
 from .forms import DormitoryForm
 from student.models import Student
+
+
+def is_guest(user):
+    """检查是否为游客"""
+    return user.username == 'guest'
 
 
 @login_required
@@ -15,6 +21,9 @@ def dormitory_list(request):
 @login_required
 def dormitory_add(request):
     """添加宿舍"""
+    if is_guest(request.user):
+        messages.warning(request, '游客模式仅支持查看，无法添加数据')
+        return redirect('dormitory:list')
     if request.method == 'POST':
         form = DormitoryForm(request.POST)
         if form.is_valid():
@@ -39,6 +48,9 @@ def dormitory_detail(request, pk):
 @login_required
 def dormitory_delete(request, pk):
     """删除宿舍"""
+    if is_guest(request.user):
+        messages.warning(request, '游客模式仅支持查看，无法删除数据')
+        return redirect('dormitory:list')
     dormitory = get_object_or_404(Dormitory, pk=pk)
     dormitory.delete()
     return redirect('dormitory:list')

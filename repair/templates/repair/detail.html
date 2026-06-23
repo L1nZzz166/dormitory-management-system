@@ -59,7 +59,7 @@
         {% endif %}
     </dl>
 
-    {% if repair.status != 'completed' %}
+    {% if user.username != 'guest' and repair.status != 'completed' %}
     <div class="mt-3">
         <a href="{% url 'repair:complete' repair.pk %}" class="btn btn-success"
            onclick="return confirm('确定将该报修标记为已完成吗？')">
